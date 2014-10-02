@@ -1,0 +1,4 @@
+tcp://localhost:5557
+tcp://*:5557
+tcp://localhost:5555
+

@@ -1,0 +1,36 @@
+#include "../include/kvesb_common.h"
+
+// Supporting functions
+
+// TODO: Verify that this is a valid implementation. Eg. no memory leaks.
+// TODO: Add assertions.
+zmsg_t *
+unwrapSenderChain (zmsg_t *msg) {
+    zmsg_t *address = zmsg_new();
+    zframe_t *current_frame = zmsg_pop(msg);
+
+    while(current_frame != NULL) {
+        if(zframe_streq(current_frame, ADDRESS_CHAIN_END)) {
+            zmsg_prepend(address, &current_frame);
+                break;
+            }
+        zmsg_prepend(address, &current_frame);
+        current_frame = zmsg_pop(msg);
+    }
+
+    return address;
+}
+
+// TODO: Verify that this is a valid implementation. Eg. no memory leaks.
+// TODO: Add assertions.
+void
+wrapSenderChain (zmsg_t *msg, zmsg_t *address) {
+    // TODO: Find a more efficient way to do this.
+    // Prepend all of the broker forwarding data.
+    zframe_t *current_frame = zmsg_pop(address);
+    while(current_frame != NULL) {
+        zmsg_prepend(msg, &current_frame);
+        current_frame = zmsg_pop(address);
+    }
+}
+

@@ -1,0 +1,18 @@
+all : kvesb_broker kvesb_adapter test_client test_worker
+
+kvesb_broker : kvesb_broker.c
+	gcc kvesb_broker.c -lzmq -lczmq -luuid -o kvesb_broker -std=gnu99 -ljansson
+
+kvesb_adapter : kvesb_adapter.c
+	gcc kvesb_adapter.c -pthread -ljansson -lzmq -lczmq -luuid -o kvesb_adapter -std=gnu99
+
+test_client : test_client.c
+	gcc test_client.c -lzmq -lczmq -o test_client -std=gnu99 -ljansson
+
+test_worker : test_worker.c
+	gcc test_worker.c -lzmq -lczmq -o test_worker -std=gnu99 -ljansson
+
+clean : 
+	rm kvesb_broker kvesb_adapter test_client test_worker
+
+
