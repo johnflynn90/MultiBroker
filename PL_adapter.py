@@ -1,14 +1,16 @@
 import os, sys
 
-def do_main(argv):	
+def do_main(argv, address):	
 	pids = []
 	for arg in argv:
+		command = 'bin/kvesb_adapter ' + str(arg) + ' ' + address
+		print 'command: ' + command
 		try:
 			pid = os.fork()
 			if (pid > 0):
 				pids.append(pid)
 			else:
-				os.system(arg)
+				os.system(command)
 				return
 		except OSError, e:
 			sys.stderr.write("Fork failed: %d (%s)\n" % (e.errno, e.strerror))
@@ -23,18 +25,18 @@ def do_main(argv):
 #end do_main
 
 if __name__ == "__main__":
-	args = []
-	if len(sys.argv) < 2:
-		sys.stderr.write('Usage %s "command 1" "command 2" ... "command n"\n' \
+	ports = []
+	if len(sys.argv) != 4:
+		sys.stderr.write('Usage %s <start port> <num_adapters> <server address>\n' \
 			% sys.argv[0])
 		sys.exit(1)
 	
-	for cmd in sys.argv[1:]:
-		cmd = cmd.strip()
-		if cmd:
-			args.append(cmd);
+	start_port = int(sys.argv[1])
+	num_adapters = int(sys.argv[2])
+	ports = range(start_port, start_port + num_adapters)
+	address = sys.argv[3]
 	try:
-		do_main(args)
+		do_main(ports, address)
 	except KeyboardInterrupt, e:
 		sys.stdout.write("\n")
 

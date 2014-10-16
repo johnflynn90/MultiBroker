@@ -7,15 +7,23 @@
  
 #define MESSAGE_SIZE        1000
 #define ADAPTER_IP_ADDRESS  "127.0.0.1"
-#define ADAPTER_PORT        8888
+//#define ADAPTER_PORT        8888
 
 #define JSON_MESSAGE    "message"
 #define JSON_SERVICE    "service"
- 
+
 int main(int argc , char *argv[])
 {
     struct sockaddr_in server;
     int socket_desc;
+    int adapter_port = 0;
+    char service[100], message[100];
+
+    strncpy(service, argv[1], 99);
+    service[99] = '\0';
+    strncpy(message, argv[2], 99);
+    message[99] = '\0';
+    sscanf(argv[3], "%d", &adapter_port);
 
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
     if (socket_desc == -1){
@@ -26,7 +34,7 @@ int main(int argc , char *argv[])
 
     server.sin_addr.s_addr = inet_addr(ADAPTER_IP_ADDRESS);
     server.sin_family = AF_INET;
-    server.sin_port = htons(ADAPTER_PORT);
+    server.sin_port = htons(adapter_port);
 
     //Connect to remote server
     if (connect(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0){
@@ -38,12 +46,12 @@ int main(int argc , char *argv[])
     while(1){
         char *request_message, reply_message[MESSAGE_SIZE];
         int request_message_length = 0;
-        char service[100], message[100];
+        //char service[100], message[100];
         char user_command;
         int read_size;
         json_t *root;
 
-        printf("Send a message? (y/n): ");
+        /*printf("Send a message? (y/n): ");
         scanf(" %c", &user_command);
         if(user_command == 'n'){
             break;
@@ -53,7 +61,7 @@ int main(int argc , char *argv[])
         scanf("%s", service);
 
         printf("Enter message: ");
-        scanf("%s", message);
+        scanf("%s", message);*/
 
         root = json_object();
         json_object_set_new(root, JSON_SERVICE, json_string(service));

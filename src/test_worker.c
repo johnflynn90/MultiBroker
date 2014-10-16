@@ -7,7 +7,7 @@
  
 #define MESSAGE_SIZE        1000
 #define ADAPTER_IP_ADDRESS  "127.0.0.1"
-#define ADAPTER_PORT        8888
+//#define ADAPTER_PORT        8888
 
 #define JSON_MESSAGE    "message"
 #define JSON_SERVICE    "service"
@@ -19,10 +19,19 @@ int main(int argc , char *argv[])
     int read_size;
     char *request_message;
     int request_message_length = 0;
+    int adapter_port = 0;
     char service[100], message[100];
     json_t *root;
 
-    socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+    // Input the service name and the port of the local adapter.
+    if(argc != 3){
+        fprintf(stderr, "error: Invalid input parameters. Use <service name> <adapter port>");
+    }
+    strncpy(service, argv[1], 99);
+    service[99] = '\0';
+    sscanf(argv[2], "%d", &adapter_port);
+
+    socket_desc = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_desc == -1){
         printf("Could not create socket\n");
         return 0;
@@ -31,7 +40,7 @@ int main(int argc , char *argv[])
 
     server.sin_addr.s_addr = inet_addr(ADAPTER_IP_ADDRESS);
     server.sin_family = AF_INET;
-    server.sin_port = htons(ADAPTER_PORT);
+    server.sin_port = htons(adapter_port);
 
     //Connect to remote server
     if (connect(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0){
@@ -40,8 +49,8 @@ int main(int argc , char *argv[])
     }
     puts("Connected");
 
-    printf("Enter service: ");
-    scanf("%s", service);
+    /*printf("Enter service: ");
+    scanf("%s", service);*/
 
     root = json_object();
     json_object_set_new(root, JSON_SERVICE, json_string(service));

@@ -13,7 +13,7 @@
 #include "kvesb_worker.c"
 #include "kvesb_client.c"
 
-#define PORT_NUMBER     8888
+//#define PORT_NUMBER     8888
 #define MESSAGE_SIZE    1000
 
 #define JSON_MESSAGE    "message"
@@ -39,10 +39,22 @@ int main(int argc , char *argv[])
     struct sockaddr_in server, client;
     connection_data_t *connection_data;
     int socket_desc , new_socket, c;
+    int port_number = 0;
     char endpoint[50]; // TODO: Dynamically allocate?
+    //char *endpoint;
 
+    if(argc != 3){
+        fprintf(stderr, "error: Invalid input parameters. Use <port number> <server address>\n");
+    }
+    sscanf(argv[1], "%d", &port_number);
+    strncpy(endpoint, argv[2], 49);
+    endpoint[49] = '\0';
+    //endpoint = argv[2];
+
+    /*printf("S1\n");
     // Accept input from stdin.
     scanf("%s", endpoint);
+    printf("S2\n");*/
 
     //Create socket
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
@@ -53,14 +65,14 @@ int main(int argc , char *argv[])
     //Prepare the sockaddr_in structure
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons(PORT_NUMBER);
+    server.sin_port = htons(port_number);
      
     //Bind
     if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0){
         puts("bind failed");
         return 1;
     }
-    puts("bind done");
+    printf("bind to port %d\n", port_number);
      
     //Listen
     listen(socket_desc , 3);
@@ -202,7 +214,7 @@ int executeClient(connection_data_t *connection_data, const char *service, const
         if((read_size = recv(connection_data->socket, request_message, MESSAGE_SIZE, 0)) <= 0){
             break;
         }
-        printf("C: Received from Client: %s\n", request_message);
+        printf("Received from Client: %s\n", request_message);
 
         root = createJSONObject(request_message, &error);
         if(!root){

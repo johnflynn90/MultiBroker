@@ -918,7 +918,7 @@ int main (int argc, char *argv [])
     char endpoint[50];
     char self_endpoint[50];
 
-    zlist_t *test = zlist_new();
+    /*zlist_t *test = zlist_new();
 
     for(int i = 0; i < 10; i++) {
         int *k = (int *)malloc(sizeof(int));
@@ -935,7 +935,7 @@ int main (int argc, char *argv [])
 
         printf("Num 2:%d\n", *num);
         num = (int *)zlist_next(test);
-    }
+    }*/
 
     for (int i = 1; i < argc; i++)
     {
