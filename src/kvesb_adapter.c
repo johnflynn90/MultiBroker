@@ -20,7 +20,7 @@
 #define JSON_SERVICE    "service"
 
 typedef struct {
-    int verbose;        // Debug mode.
+    //int verbose;        // Debug mode.
     int socket;         // Incoming connection to adapter.
     char *endpoint;     // Endpoint to broker.
 
@@ -35,7 +35,7 @@ int extractJSONValue(json_t *root, const char *key, const char **value_text);
 
 int main(int argc , char *argv[])
 {
-    int verbose = (argc > 1 && streq (argv [1], "-v"));
+    //int verbose = (argc > 1 && streq (argv [1], "-v"));
     struct sockaddr_in server, client;
     connection_data_t *connection_data;
     int socket_desc , new_socket, c;
@@ -83,7 +83,7 @@ int main(int argc , char *argv[])
     while( (new_socket = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) >= 0 ){ // TODO: is >=0 necessary?
         pthread_t sniffer_thread;
         connection_data = (connection_data_t *)malloc(sizeof(connection_data_t));
-        connection_data->verbose = verbose;
+        //connection_data->verbose = verbose;
         connection_data->socket = new_socket;
         connection_data->endpoint = strdup(endpoint);
 
@@ -170,7 +170,7 @@ int executeClient(connection_data_t *connection_data, const char *service, const
     int read_size;
     json_t *root;
     json_error_t error;
-    kvesb_client_t *session = kvesb_client_new (connection_data->endpoint, connection_data->verbose);
+    kvesb_client_t *session = kvesb_client_new (connection_data->endpoint, 0);// connection_data->verbose);
 
     while(1){
         char *reply_message, request_message[MESSAGE_SIZE];
@@ -206,7 +206,10 @@ int executeClient(connection_data_t *connection_data, const char *service, const
             break;
         }
 
-        printf("Sending to Client: %s\n", reply_message);
+        /*if(connection_data->verbose){
+            printf("Sending to Client: %s\n", reply_message);
+        }*/
+
         write(connection_data->socket, reply_message, reply_message_length + 1);
         json_decref(root);
         free(reply_message);
@@ -214,7 +217,10 @@ int executeClient(connection_data_t *connection_data, const char *service, const
         if((read_size = recv(connection_data->socket, request_message, MESSAGE_SIZE, 0)) <= 0){
             break;
         }
-        printf("Received from Client: %s\n", request_message);
+
+        /*if(connection_data->verbose){
+            printf("Received from Client: %s\n", request_message);
+        }*/
 
         root = createJSONObject(request_message, &error);
         if(!root){
@@ -231,7 +237,7 @@ int executeClient(connection_data_t *connection_data, const char *service, const
 int executeWorker(connection_data_t *connection_data, const char *service)
 {
     int read_size;
-    kvesb_worker_t *session = kvesb_worker_new(connection_data->endpoint, service, connection_data->verbose);
+    kvesb_worker_t *session = kvesb_worker_new(connection_data->endpoint, service, 0);//, connection_data->verbose);
 
     while(1){
         char *request_message, reply_message[MESSAGE_SIZE]; // TODO: Why is it 2*?
@@ -261,7 +267,10 @@ int executeWorker(connection_data_t *connection_data, const char *service)
             break;
         }
 
-        printf("Sending to Worker: %s\n", request_message);
+        /*if(connection_data->verbose){
+            printf("Sending to Worker: %s\n", request_message);
+        }*/
+
         write(connection_data->socket, request_message, request_message_length + 1);
         json_decref(root);
         free(request_message);
@@ -270,7 +279,9 @@ int executeWorker(connection_data_t *connection_data, const char *service)
             zmsg_destroy (&reply_to);
             break;
         }
-        printf("Received from Worker: %s\n", reply_message);
+        /*if(connection_data->verbose){
+            printf("Received from Worker: %s\n", reply_message);
+        }*/
 
         root = createJSONObject(reply_message, &error);
         if(!root) {

@@ -1,4 +1,11 @@
 import os, sys
+import signal
+import time
+
+Terminated = False
+
+def signal_handler(signal, frame):
+	Terminated = True
 
 def do_main(ports, adapters):
 	pids = []
@@ -19,15 +26,19 @@ def do_main(ports, adapters):
 				sys.exit(1)
 		adapter_index += 1
 	# in the parent
+	time_elapsed = time.time()
 	try:
 		for pid in pids:
 			os.waitpid(pid, 0);
 	except OSError, e:
+		time_elapsed = time.time() - time_elapsed
+		print 'Time Elapsed: ', time_elapsed
 		sys.stderr.write("Wait failed: %d (%s)\n" % (e.errno, e.strerror))
 		sys.exit(1)
 #end do_main
 
 if __name__ == "__main__":
+	signal.signal(signal.SIGINT, signal_handler)
 	ports = []
 	if len(sys.argv) != 5:
 		sys.stderr.write('Usage %s <start port> <num adapters> <num services per adapter> <num clients per service>\n' \

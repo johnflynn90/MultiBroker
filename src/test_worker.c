@@ -83,7 +83,8 @@ int main(int argc , char *argv[])
             puts("Adapter disconnected");
             break;
         }
-        printf("Received/Sending Message: %s\n", reply_message);
+
+            /*printf("Received/Sending Message: %s\n", reply_message);*/
 
         // Echo message back.
         if(send(socket_desc, reply_message, MESSAGE_SIZE, 0) < 0){
